@@ -8,10 +8,14 @@ const P = [
   {
     id: 1,
     n: "Block Heavy Tee",
-    c: "Tees",            // Category: Tees, Hoodies, Pants, Outerwear
-    u: 1200,              // Price in EGP
-    g: "320 GSM",         // Fabric specs
-    img: "images/tee1.jpg" // Image or GIF path
+    c: "Tees",
+    u: 1200,
+    g: "320 GSM",
+    imgs: [
+      "images/tee1-front.jpg",
+      "images/tee1-back.jpg",
+      "images/tee1.gif"
+    ]
   },
   {
     id: 2,
@@ -19,7 +23,9 @@ const P = [
     c: "Tees",
     u: 1300,
     g: "340 GSM",
-    img: "images/tee2.gif"
+    imgs: [
+      "images/tee2.jpg"
+    ]
   },
   {
     id: 3,
@@ -27,7 +33,10 @@ const P = [
     c: "Hoodies",
     u: 2400,
     g: "480 GSM",
-    img: "images/hoodie1.jpg"
+    imgs: [
+      "images/hoodie1-front.jpg",
+      "images/hoodie1-back.jpg"
+    ]
   },
   {
     id: 4,
@@ -35,7 +44,9 @@ const P = [
     c: "Hoodies",
     u: 2600,
     g: "480 GSM",
-    img: "images/hoodie2.jpg"
+    imgs: [
+      "images/hoodie2.jpg"
+    ]
   },
   {
     id: 5,
@@ -43,7 +54,9 @@ const P = [
     c: "Pants",
     u: 2100,
     g: "450 GSM",
-    img: "images/pant1.jpg"
+    imgs: [
+      "images/pant1.jpg"
+    ]
   },
   {
     id: 6,
@@ -51,7 +64,9 @@ const P = [
     c: "Pants",
     u: 2300,
     g: "12 oz twill",
-    img: "images/pant2.jpg"
+    imgs: [
+      "images/pant2.jpg"
+    ]
   },
   {
     id: 7,
@@ -59,7 +74,9 @@ const P = [
     c: "Outerwear",
     u: 3600,
     g: "14 oz canvas",
-    img: "images/jacket.jpg"
+    imgs: [
+      "images/jacket.jpg"
+    ]
   },
   {
     id: 8,
@@ -67,6 +84,8 @@ const P = [
     c: "Hoodies",
     u: 2200,
     g: "450 GSM",
-    img: "images/crewneck.jpg"
+    imgs: [
+      "images/crewneck.jpg"
+    ]
   }
 ];
