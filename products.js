@@ -35,8 +35,8 @@ const P = [
     g: "480 GSM",
     imgs: [
       "images/hoodie face.jpg",
-      "images/hoodie back.jpg"
-       "images/gif.gif"
+      "images/hoodie back.jpg",
+      "images/gif.gif"
     ]
   },
   {
