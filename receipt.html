@@ -1,0 +1,56 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AETHER Receipt</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#000;--g:#666;--l:#d9d9d6;--bg:#f4f4f2}
+*{box-sizing:border-box;margin:0}
+body{font:400 13px/1.5 Archivo,Arial,sans-serif;background:var(--bg);color:var(--ink);padding:24px}
+.pb{display:block;margin:0 auto 16px;background:#000;color:#fff;border:0;padding:12px 28px;font:inherit;font-weight:600;cursor:pointer}
+.r{max-width:560px;margin:0 auto;background:#fff;border:1px solid var(--ink);padding:36px}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;border-bottom:2px solid var(--ink);padding-bottom:18px}
+.logo{font-stretch:125%;font-weight:900;font-size:30px;letter-spacing:.14em;line-height:1}
+.logo img{max-height:54px;display:block}
+.sl{font-stretch:62%;font-weight:600;font-size:15px;margin-top:6px}
+.meta{text-align:right}.meta b{display:block;font-size:16px}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:20px 0}
+h4{font-weight:700;font-size:12px;color:var(--g);margin-bottom:4px}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-weight:600;font-size:12px;border-bottom:1px solid var(--ink);padding:6px 4px 6px 0}
+td{padding:8px 4px 8px 0;border-bottom:1px solid var(--l)}
+.n{text-align:right;white-space:nowrap}
+.tot{margin:14px 0 0 auto;width:60%}
+.tot div{display:flex;justify-content:space-between;padding:3px 0}
+.tot .g{border-top:2px solid var(--ink);margin-top:6px;padding-top:8px;font-weight:800;font-size:17px}
+.pay{margin-top:20px;padding:12px;border:1px solid var(--ink)}
+.ft{margin-top:26px;padding-top:14px;border-top:1px solid var(--l);color:var(--g);font-size:12px;text-align:center}
+@page{size:A5;margin:8mm}
+@media print{body{background:#fff;padding:0}.r{border:0;padding:0;max-width:none}.pb{display:none}}
+</style></head><body>
+<button class="pb" onclick="print()">Print receipt</button>
+<div class="r" id="r"></div>
+<script>
+/* ===== EDIT ===== */
+const LOGO=""; // put your logo file name here, e.g. "logo.png" (upload it next to index.html)
+const PHONE="+20 115 849 1356";
+const NOTE="Exchanges within 14 days with the receipt and unworn items.";
+/* ================ */
+const q=new URLSearchParams(location.search),g=k=>q.get(k)||"";
+const e=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const m=n=>Number(n).toLocaleString("en")+" EGP";
+const PAY={cod:"Cash on delivery",insta:"InstaPay",wallet:"E-wallet"};
+const logo=LOGO?`<img src="${e(LOGO)}" alt="AETHER">`:"AETHER";
+if(!g("id")){document.getElementById("r").innerHTML="<p>Open this page from the “Print receipt” link in your orders sheet.</p>"}
+else{
+const rows=g("lines").split(";").filter(Boolean).map(l=>{const[a,s,n,p]=l.split("|");return`<tr><td>${e(a)}</td><td>${e(s)}</td><td class="n">${e(n)}</td><td class="n">${m(p)}</td><td class="n">${m(p*n)}</td></tr>`}).join("");
+const cod=g("pay")=="cod",pm=PAY[g("pay")]||g("pay");
+document.title="AETHER Receipt "+g("id");
+document.getElementById("r").innerHTML=`
+<div class="top"><div><div class="logo">${logo}</div><div class="sl">Silent Chaos.</div></div>
+<div class="meta"><b>Receipt</b>${e(g("id"))}<br>${e(g("date")||new Date().toLocaleDateString("en-GB"))}</div></div>
+<div class="cols"><div><h4>Customer</h4>${e(g("name"))}<br>${e(g("phone"))}</div>
+<div><h4>Ship to</h4>${e(g("addr"))}<br>${e(g("city"))}${g("zone")?" · "+e(g("zone")):""}</div></div>
+<table><tr><th>Item</th><th>Size</th><th class="n">Qty</th><th class="n">Price</th><th class="n">Total</th></tr>${rows}</table>
+<div class="tot"><div><span>Subtotal</span><span>${m(g("sub")||0)}</span></div><div><span>Shipping</span><span>${m(g("ship")||0)}</span></div><div class="g"><span>Total</span><span>${e(g("total"))}</span></div></div>
+<div class="pay"><h4>Payment</h4>${e(pm)}${g("ref")?" · Ref "+e(g("ref")):""}<br>${cod?"Amount due on delivery: <b>"+e(g("total"))+"</b>":"Status: <b>Paid</b>"}</div>
+<div class="ft">Thank you for choosing AETHER.<br>${e(NOTE)}<br>WhatsApp ${e(PHONE)}</div>`}
+</script></body></html>
