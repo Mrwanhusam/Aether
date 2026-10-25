@@ -59,6 +59,14 @@ input,select,textarea{width:100%;padding:10px;border:1px solid var(--ink);backgr
 footer{padding:4vw;display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px;font-size:14px}
 #toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:var(--w);padding:12px 22px;z-index:40;display:none}
 :focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+
+/* إضافات الـ Gallery للصور المتعددة */
+.gallery { display: flex; gap: 8px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 8px; }
+.gallery img { width: 100%; aspect-ratio: 4/5; object-fit: cover; flex-shrink: 0; scroll-snap-align: start; background: var(--g2); }
+.gallery::-webkit-scrollbar { height: 6px; }
+.gallery::-webkit-scrollbar-thumb { background: var(--ink); }
+.gallery::-webkit-scrollbar-track { background: var(--g2); }
+
 @media(max-width:760px){.hero .row,.inc,.pd{grid-template-columns:1fr}nav{display:none}#modal{inset:0}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 </style></head><body>
@@ -107,7 +115,7 @@ footer{padding:4vw;display:flex;justify-content:space-between;flex-wrap:wrap;gap
 <button class="btn" id="co" style="width:100%;margin-top:14px">Checkout</button></aside>
 <div class="panel" id="modal" role="dialog" aria-modal="true"></div><div id="toast" role="status"></div>
 
-<!-- Load separate products file -->
+<!-- ملف المنتجات -->
 <script src="products.js"></script>
 
 <script>
@@ -124,8 +132,14 @@ const SZ=[["S","60–72"],["M","73–85"],["L","86–100"],["XL","101–120"],["
 const $=s=>document.querySelector(s),cart=[];let cat="All";
 const price=u=>Math.round(u).toLocaleString()+" EGP";
 
-const img=p=>`<div class="img">
-  ${p.img ? `<img src="${p.img}" alt="${p.n}" onerror="this.outerHTML='<div class=\\'placeholder\\'>${p.n}</div>'">` : `<div class="placeholder">${p.n}</div>`}
+// صورة الغلاف (أول صورة في المصفوفة)
+const thumb=p=>`<div class="img">
+  ${p.imgs && p.imgs.length ? `<img src="${p.imgs[0]}" alt="${p.n}">` : `<div class="placeholder">${p.n}</div>`}
+</div>`;
+
+// شريط الصور لما تفتح المنتج
+const gallery=p=>`<div class="gallery">
+  ${p.imgs ? p.imgs.map(i=>`<img src="${i}" alt="${p.n}">`).join("") : ""}
 </div>`;
 
 const rec=(w,h)=>{let i=SZ.findIndex(([,r])=>w<=+r.split("–")[1]);if(i<0)i=4;if(h>=188&&i<4)i++;return SZ[i][0]};
@@ -135,9 +149,9 @@ pants:{h:["Waist","Hip","Inseam","Length"],r:i=>[38+[0,3,6,10,15][i],54+[0,4,8,1
 const chart=p=>{const c=CH[p.c=="Pants"?"pants":p.c=="Outerwear"?"jacket":"top"];return"<table><tr><th>Size</th><th>Weight kg</th>"+c.h.map(h=>`<th>${h} cm</th>`).join("")+"</tr>"+SZ.map(([s,r],i)=>`<tr><td>${s}</td><td>${r}</td>${c.r(i).map(v=>`<td>${v}</td>`).join("")}</tr>`).join("")+`</table><p class='note'>REPLACE WITH REAL MEASUREMENTS. ${c.n}</p>`};
 function toast(t){const e=$("#toast");e.textContent=t;e.style.display="block";setTimeout(()=>e.style.display="none",2200)}
 function grid(){const cs=["All",...new Set(P.map(p=>p.c))];$("#flt").innerHTML=cs.map(c=>`<button class="${c==cat?"on":""}" data-c="${c}">${c}</button>`).join("");
-$("#grid").innerHTML=P.filter(p=>cat=="All"||p.c==cat).map(p=>`<button class="card" data-id="${p.id}">${img(p)}<b>${p.n}</b><span>${p.g} · ${price(p.u)}</span></button>`).join("")}
+$("#grid").innerHTML=P.filter(p=>cat=="All"||p.c==cat).map(p=>`<button class="card" data-id="${p.id}">${thumb(p)}<b>${p.n}</b><span>${p.g} · ${price(p.u)}</span></button>`).join("")}
 function open(id){const p=P.find(x=>x.id==id);let sz="M";
-$("#modal").innerHTML=`<button class="x" data-close>×</button><div class="pd"><div>${img(p)}</div><div><h2 style="font-size:40px">${p.n}</h2><p>${price(p.u)} · ${p.g} · Oversized, boxy fit</p>
+$("#modal").innerHTML=`<button class="x" data-close>×</button><div class="pd"><div>${gallery(p)}</div><div><h2 style="font-size:40px">${p.n}</h2><p>${price(p.u)} · ${p.g} · Oversized, boxy fit</p>
 <label>Size</label><div class="sizes">${SZ.map(([s])=>`<button data-s="${s}" class="${s==sz?"on":""}">${s}</button>`).join("")}</div>
 <div class="box"><label for="mw">Weight (kg) for size help</label><input id="mw" type="number" placeholder="85"><p class="note" id="mr"></p></div>
 <button class="btn" id="add">Add to cart</button><br><br><b>Size chart</b>${chart(p)}</div></div>`;
