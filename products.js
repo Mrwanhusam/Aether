@@ -29,13 +29,14 @@ const P = [
   },
   {
     id: 3,
-    n: "Monolith Hoodie",
+    n: "Test Hoodie",
     c: "Hoodies",
-    u: 2400,
+    u: 800,
     g: "480 GSM",
     imgs: [
-      "images/hoodie1-front.jpg",
-      "images/hoodie1-back.jpg"
+      "images/hoodie face.jpg",
+      "images/hoodie back.jpg"
+       "images/gif.gif"
     ]
   },
   {
