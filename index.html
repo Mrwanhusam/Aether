@@ -31,9 +31,10 @@ h2{font-stretch:75%;font-weight:800;font-size:clamp(30px,5vw,64px);line-height:1
 .filters .on{background:var(--ink);color:var(--w)}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:0;border-top:1px solid var(--ink);border-left:1px solid var(--ink)}
 .card{border-right:1px solid var(--ink);border-bottom:1px solid var(--ink);padding:14px;cursor:pointer;background:none;text-align:left;border-top:0;border-left:0}
-.img{aspect-ratio:4/5;background:var(--g2);display:grid;place-items:center;filter:grayscale(1);transition:filter .5s}
+.img{aspect-ratio:4/5;background:var(--g2);display:grid;place-items:center;filter:grayscale(1);transition:filter .5s;overflow:hidden;position:relative}
+.img img{width:100%;height:100%;object-fit:cover;display:block}
+.img .placeholder{font-size:12px;color:var(--g1);text-align:center;padding:10px}
 .card:hover .img,.card:focus-visible .img,.card.tap .img{filter:none}
-.img svg{width:70%}
 .card b{display:block;margin-top:12px;font-weight:600}.card span{color:var(--g1);font-size:14px}
 .inc{display:grid;grid-template-columns:1fr 1fr;gap:4vw}
 table{border-collapse:collapse;width:100%;font-size:14px}th,td{border:1px solid var(--ink);padding:8px;text-align:center}th{background:var(--ink);color:var(--w);font-weight:500}
@@ -106,29 +107,27 @@ footer{padding:4vw;display:flex;justify-content:space-between;flex-wrap:wrap;gap
 <button class="btn" id="co" style="width:100%;margin-top:14px">Checkout</button></aside>
 <div class="panel" id="modal" role="dialog" aria-modal="true"></div><div id="toast" role="status"></div>
 
+<!-- Load separate products file -->
+<script src="products.js"></script>
+
 <script>
-/* ===== EDIT THIS BLOCK ===== */
+/* ===== Checkout & Payment Setup ===== */
 const WA="201158491356";
 const PAY={cod:{n:"Cash on delivery",egy:1,t:""},
 insta:{n:"InstaPay",egy:1,t:"Send the exact total via InstaPay: <a href=\"https://ipn.eg/S/marwanqn1/instapay/3NLVzO\" target=\"_blank\" rel=\"noopener\"><b>Open InstaPay link</b></a>"},
 wallet:{n:"E-wallet",egy:1,t:"Send the exact total to this wallet number: <b>01158491356</b>"},
 };
-const ZONES={"Cairo & Giza":{c:60},"Alexandria & Delta":{c:75},"Canal & Upper Egypt":{c:95},"Other governorates":{c:110}}; // shipping in EGP
-const P=[
-{id:1,n:"Block Heavy Tee",c:"Tees",u:1200,g:"320 GSM",col:"#2b2b2b",s:"tee"},
-{id:2,n:"Slab Tee",c:"Tees",u:1300,g:"340 GSM",col:"#b9b2a4",s:"tee"},
-{id:3,n:"Monolith Hoodie",c:"Hoodies",u:2400,g:"480 GSM",col:"#1a1a1a",s:"hood"},
-{id:4,n:"Void Hoodie",c:"Hoodies",u:2600,g:"480 GSM",col:"#7a7f86",s:"hood"},
-{id:5,n:"Frame Sweatpant",c:"Pants",u:2100,g:"450 GSM",col:"#3a3a3a",s:"pant"},
-{id:6,n:"Grid Cargo",c:"Pants",u:2300,g:"12 oz twill",col:"#8c8576",s:"pant"},
-{id:7,n:"Axis Jacket",c:"Outerwear",u:3600,g:"14 oz canvas",col:"#232a2e",s:"hood"},
-{id:8,n:"Shell Crewneck",c:"Hoodies",u:2200,g:"450 GSM",col:"#c9c9c6",s:"tee"}];
+const ZONES={"Cairo & Giza":{c:60},"Alexandria & Delta":{c:75},"Canal & Upper Egypt":{c:95},"Other governorates":{c:110}};
 const SZ=[["S","60–72"],["M","73–85"],["L","86–100"],["XL","101–120"],["XXL","121–150"]];
-/* ===== APP ===== */
+
+/* ===== UI Engine & Media Renderer ===== */
 const $=s=>document.querySelector(s),cart=[];let cat="All";
 const price=u=>Math.round(u).toLocaleString()+" EGP";
-const shape=(s,c)=>({tee:'<path d="M30 20 45 12Q60 22 75 12L90 20 102 45 86 52 83 40V108H37V40L34 52 18 45Z"',hood:'<path d="M28 24 46 12Q60 30 74 12L92 24 106 60 90 66 85 48V110H35V48L30 66 14 60Z"',pant:'<path d="M34 8H86L92 112H66L60 40 54 112H28Z"'}[s])+` fill="${c}"/>`;
-const img=p=>`<div class="img"><svg viewBox="0 0 120 120">${shape(p.s,p.col)}</svg></div>`;
+
+const img=p=>`<div class="img">
+  ${p.img ? `<img src="${p.img}" alt="${p.n}" onerror="this.outerHTML='<div class=\\'placeholder\\'>${p.n}</div>'">` : `<div class="placeholder">${p.n}</div>`}
+</div>`;
+
 const rec=(w,h)=>{let i=SZ.findIndex(([,r])=>w<=+r.split("–")[1]);if(i<0)i=4;if(h>=188&&i<4)i++;return SZ[i][0]};
 const CH={top:{h:["Chest","Length","Sleeve"],r:i=>[60+i*5,70+i*2,62+i*1.5],n:"Chest is half-chest, measured flat."},
 jacket:{h:["Chest","Length","Sleeve","Shoulder"],r:i=>[64+i*5,72+i*2,64+i*1.5,52+i*2],n:"Chest is half-chest, measured flat."},
@@ -152,7 +151,7 @@ function upd(){$("#cb").textContent=`Cart (${cart.reduce((a,i)=>a+i.q,0)})`;
 $("#items").innerHTML=cart.length?cart.map((i,x)=>{const p=P.find(p=>p.id==i.id);return`<div class="li"><span>${p.n} · ${i.s}</span><span><button data-m="${x}">−</button> ${i.q} <button data-p="${x}">+</button> ${price(p.u*i.q)}</span></div>`}).join(""):"<p>Your cart is empty.</p>";
 const z=zone(),sh=cart.length?z.c:0;$("#sum").innerHTML=cart.length?`<div class="li"><span>Subtotal</span><span>${price(total())}</span></div><div class="li"><span>Shipping</span><span>${price(sh)}</span></div><div class="li"><b>Total</b><b>${price(total()+sh)}</b></div>`:"";
 $("#oo").value=cart.map(i=>`${P.find(p=>p.id==i.id).n} / ${i.s} x${i.q}`).join("; ");$("#ot").value=`${total()+sh} EGP`;$("#os").value=total();$("#oh").value=sh;$("#ol").value=cart.map(i=>{const p=P.find(p=>p.id==i.id);return `${p.n}|${i.s}|${i.q}|${p.u}`}).join(";");if(!$("#oi").value)$("#oi").value="AE-"+new Date().toISOString().slice(2,10).replace(/-/g,"")+"-"+Math.floor(1000+Math.random()*9000)}
-function pays(){const eg=$("#zn").value=="Egypt";$("#pm").innerHTML=Object.entries(PAY).filter(()=>1).map(([k,v])=>`<option value="${k}">${v.n}</option>`).join("");pm()}
+function pays(){$("#pm").innerHTML=Object.entries(PAY).filter(()=>1).map(([k,v])=>`<option value="${k}">${v.n}</option>`).join("");pm()}
 function pm(){const v=PAY[$("#pm").value];$("#pi").classList.toggle("hide",!v.t);$("#pt").innerHTML=v.t}
 function show(s){$(s).classList.add("on");$("#mask").classList.add("on")}
 function hide(){document.querySelectorAll(".panel,.mask").forEach(e=>e.classList.remove("on"))}
