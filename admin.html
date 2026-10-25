@@ -31,16 +31,16 @@ main{padding:24px 4vw;max-width:1100px;margin:0 auto}
 <main id="m"></main>
 <script>
 const $=s=>document.querySelector(s),ST=["New","Paid","Shipped","Delivered","Cancelled"],COL={New:"#000",Paid:"#2e7d32",Shipped:"#1565c0",Delivered:"#9a9a9a",Cancelled:"#c62828"};
-let API=localStorage.getItem("ae_api")||"",TOK=localStorage.getItem("ae_tok")||"",O=[],F="All",Q="";
+let TOK=localStorage.getItem("ae_tok")||"",O=[],F="All",Q="";
 const e=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const num=t=>parseFloat(String(t).replace(/[^\d.]/g,""))||0;
 const wa=p=>{p=String(p).replace(/\D/g,"");return"https://wa.me/"+(p.startsWith("0")?"2"+p:p)};
 const PAY={cod:"Cash on delivery",insta:"InstaPay",wallet:"E-wallet"};
-function login(err){$("#m").innerHTML=`<div class="login"><h2 style="font-stretch:75%;font-weight:800;font-size:28px;margin-bottom:14px">Sign in</h2><label>Dashboard link (Apps Script /exec URL)</label><input id="a" value="${e(API)}"><label>Password</label><input id="t" type="password"><button class="btn" id="go" style="width:100%">Open dashboard</button><p class="err" id="er">${e(err||"")}</p></div>`;
-$("#go").onclick=()=>{API=$("#a").value.trim();TOK=$("#t").value;load()}}
+function login(err){$("#m").innerHTML=`<div class="login"><h2 style="font-stretch:75%;font-weight:800;font-size:28px;margin-bottom:14px">Sign in</h2><label>Password</label><input id="t" type="password"><button class="btn" id="go" style="width:100%">Open dashboard</button><p class="err" id="er">${e(err||"")}</p></div>`;
+$("#go").onclick=()=>{TOK=$("#t").value;load()}}
 async function load(){$("#m").innerHTML='<p id="msg">Loading…</p>';
-try{const j=await(await fetch(API+"?token="+encodeURIComponent(TOK))).json();if(j.error)throw 0;O=j.orders.reverse();localStorage.setItem("ae_api",API);localStorage.setItem("ae_tok",TOK);draw()}
-catch(x){localStorage.removeItem("ae_tok");login("Could not open. Check the link and the password.")}}
+try{const j=await(await fetch("/api/orders?token="+encodeURIComponent(TOK))).json();if(j.error)throw 0;O=j.orders.reverse();localStorage.setItem("ae_tok",TOK);draw()}
+catch(x){localStorage.removeItem("ae_tok");login("Could not open. Check the password.")}}
 function draw(){const c=s=>O.filter(o=>o.status==s).length,rev=O.filter(o=>o.status!="Cancelled").reduce((a,o)=>a+num(o.total),0);
 const L=O.filter(o=>(F=="All"||o.status==F)&&(o.name+o.id+o.phone+o.city).toLowerCase().includes(Q));
 $("#m").innerHTML=`<div class="stats"><div class="st"><span>New</span><b>${c("New")}</b></div><div class="st"><span>To ship (paid)</span><b>${c("Paid")}</b></div><div class="st"><span>Shipped</span><b>${c("Shipped")}</b></div><div class="st"><span>Revenue</span><b>${Math.round(rev).toLocaleString()}</b> EGP</div></div>
@@ -51,8 +51,8 @@ ${L.map(o=>`<div class="ord"><div><b>${e(o.name)}</b><small>${e(o.id||"No ID")}<
 $("#q").oninput=x=>{Q=x.target.value.toLowerCase();const p=x.target.selectionStart;draw();$("#q").focus();$("#q").setSelectionRange(p,p)};
 document.querySelectorAll("[data-f]").forEach(b=>b.onclick=()=>{F=b.dataset.f;draw()});
 document.querySelectorAll("[data-r]").forEach(s=>s.onchange=async()=>{const o=O.find(x=>x.row==s.dataset.r);o.status=s.value;draw();
-await fetch(API,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain"},body:JSON.stringify({action:"status",token:TOK,row:o.row,id:o.id,status:o.status})})})}
-$("#rf").onclick=()=>API&&TOK?load():login();
+await fetch("/api/orders",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"status",token:TOK,row:o.row,id:o.id,status:o.status})})})}
+$("#rf").onclick=()=>TOK?load():login();
 $("#lo").onclick=()=>{localStorage.removeItem("ae_tok");TOK="";login()};
-API&&TOK?load():login();
+TOK?load():login();
 </script></body></html>
