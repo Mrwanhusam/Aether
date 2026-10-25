@@ -1,8 +1,7 @@
-// Vercel serverless function: emails orders/tickets to the owner via Resend
 module.exports = async (req, res) => {
   if (req.method !== "POST") return res.status(405).end();
   const d = req.body || {};
-  if (d.bot) return res.status(200).json({ ok: true }); // spam trap
+  if (d.bot) return res.status(200).json({ ok: true });
   if (!process.env.RESEND_API_KEY || !process.env.OWNER_EMAIL)
     return res.status(500).json({ ok: false, error: "Missing env vars" });
   const type = d["form-name"] === "orders" ? "New order" : "Support ticket";
@@ -18,10 +17,19 @@ module.exports = async (req, res) => {
     html: rows
   };
   if (d.file && d.file.data) body.attachments = [{ filename: d.file.name, content: d.file.data }];
+  // Also save the order/ticket in Google Sheets (optional, needs SHEET_URL)
+  const sheet = process.env.SHEET_URL
+    ? fetch(process.env.SHEET_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain" },
+        body: JSON.stringify({ ...d, file: undefined })
+      }).catch(() => {})
+    : null;
   const r = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, "Content-Type": "application/json" },
     body: JSON.stringify(body)
   });
+  if (sheet) await sheet;
   return res.status(r.ok ? 200 : 502).json({ ok: r.ok });
 };
