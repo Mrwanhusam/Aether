@@ -1,0 +1,58 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow">
+<title>AETHER Orders</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f4f4f2;--ink:#000;--g:#6b6b6b;--w:#fff}
+*{box-sizing:border-box;margin:0}
+body{font:400 14px/1.5 Archivo,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+button,input,select{font:inherit;color:inherit}button{cursor:pointer}
+.top{display:flex;align-items:center;gap:12px;padding:14px 4vw;border-bottom:1px solid var(--ink);position:sticky;top:0;z-index:5;background:var(--bg)}
+.logo{font-stretch:125%;font-weight:800;letter-spacing:.12em;font-size:18px}.top small{color:var(--g)}.sp{margin-left:auto}
+.btn{background:var(--ink);color:#fff;border:1px solid var(--ink);padding:8px 16px;font-weight:600;text-decoration:none;display:inline-block}
+.btn.o{background:none;color:var(--ink)}
+main{padding:24px 4vw;max-width:1100px;margin:0 auto}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));border:1px solid var(--ink);background:var(--w);margin-bottom:20px}
+.st{padding:14px 16px;border-right:1px solid var(--ink)}.st:last-child{border:0}
+.st span{display:block;color:var(--g);font-size:12px}.st b{font-stretch:75%;font-weight:800;font-size:30px;line-height:1.2}
+.bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.bar button{background:none;border:1px solid var(--ink);padding:7px 14px}.bar .on{background:var(--ink);color:#fff}
+.bar input{flex:1;min-width:170px;border:1px solid var(--ink);padding:8px 12px;background:var(--w)}
+.ord{display:grid;grid-template-columns:1.1fr 1.6fr auto;gap:16px;background:var(--w);border:1px solid var(--ink);padding:16px;margin-bottom:10px;align-items:center}
+.ord small{color:var(--g);display:block}.tot{font-stretch:75%;font-weight:800;font-size:22px}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px}
+.ord select{border:1px solid var(--ink);padding:6px;background:var(--w);width:100%;margin:6px 0}
+.acts{display:flex;gap:6px}.acts a{flex:1;text-align:center;font-size:13px;padding:6px 10px}
+.login{max-width:380px;margin:8vh auto;background:var(--w);border:1px solid var(--ink);padding:26px}
+.login input{width:100%;border:1px solid var(--ink);padding:10px;margin:4px 0 14px}.login label{font-size:12px;font-weight:600}
+#msg{color:var(--g);margin:8px 0}.err{color:#c62828}
+@media(max-width:760px){.ord{grid-template-columns:1fr}}
+</style></head><body>
+<div class="top"><span class="logo">AETHER</span><small>Orders</small><span class="sp"></span><button class="btn o" id="rf">Refresh</button><button class="btn o" id="lo">Log out</button></div>
+<main id="m"></main>
+<script>
+const $=s=>document.querySelector(s),ST=["New","Paid","Shipped","Delivered","Cancelled"],COL={New:"#000",Paid:"#2e7d32",Shipped:"#1565c0",Delivered:"#9a9a9a",Cancelled:"#c62828"};
+let API=localStorage.getItem("ae_api")||"",TOK=localStorage.getItem("ae_tok")||"",O=[],F="All",Q="";
+const e=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const num=t=>parseFloat(String(t).replace(/[^\d.]/g,""))||0;
+const wa=p=>{p=String(p).replace(/\D/g,"");return"https://wa.me/"+(p.startsWith("0")?"2"+p:p)};
+const PAY={cod:"Cash on delivery",insta:"InstaPay",wallet:"E-wallet"};
+function login(err){$("#m").innerHTML=`<div class="login"><h2 style="font-stretch:75%;font-weight:800;font-size:28px;margin-bottom:14px">Sign in</h2><label>Dashboard link (Apps Script /exec URL)</label><input id="a" value="${e(API)}"><label>Password</label><input id="t" type="password"><button class="btn" id="go" style="width:100%">Open dashboard</button><p class="err" id="er">${e(err||"")}</p></div>`;
+$("#go").onclick=()=>{API=$("#a").value.trim();TOK=$("#t").value;load()}}
+async function load(){$("#m").innerHTML='<p id="msg">Loading…</p>';
+try{const j=await(await fetch(API+"?token="+encodeURIComponent(TOK))).json();if(j.error)throw 0;O=j.orders.reverse();localStorage.setItem("ae_api",API);localStorage.setItem("ae_tok",TOK);draw()}
+catch(x){localStorage.removeItem("ae_tok");login("Could not open. Check the link and the password.")}}
+function draw(){const c=s=>O.filter(o=>o.status==s).length,rev=O.filter(o=>o.status!="Cancelled").reduce((a,o)=>a+num(o.total),0);
+const L=O.filter(o=>(F=="All"||o.status==F)&&(o.name+o.id+o.phone+o.city).toLowerCase().includes(Q));
+$("#m").innerHTML=`<div class="stats"><div class="st"><span>New</span><b>${c("New")}</b></div><div class="st"><span>To ship (paid)</span><b>${c("Paid")}</b></div><div class="st"><span>Shipped</span><b>${c("Shipped")}</b></div><div class="st"><span>Revenue</span><b>${Math.round(rev).toLocaleString()}</b> EGP</div></div>
+<div class="bar">${["All",...ST].map(s=>`<button data-f="${s}" class="${s==F?"on":""}">${s}</button>`).join("")}<input id="q" placeholder="Search name, order ID, phone, city" value="${e(Q)}"></div>
+${L.map(o=>`<div class="ord"><div><b>${e(o.name)}</b><small>${e(o.id||"No ID")}</small><small>${new Date(o.date).toLocaleString("en-GB",{timeZone:"Africa/Cairo",dateStyle:"medium",timeStyle:"short"})}</small></div>
+<div>${e(o.items)}<small>${e(o.city)} · ${e(o.address)}</small><small>${e(PAY[o.pay]||o.pay)}${o.ref?" · Ref "+e(o.ref):""} · ${e(o.phone)}</small></div>
+<div><div class="tot">${e(o.total)}</div><select data-r="${o.row}">${ST.map(s=>`<option ${s==o.status?"selected":""}>${s}</option>`).join("")}</select><div class="acts">${o.receipt?`<a class="btn o" target="_blank" href="${e(o.receipt)}">Receipt</a>`:""}<a class="btn o" target="_blank" href="${wa(o.phone)}">WhatsApp</a></div></div></div>`).join("")||"<p>No orders here.</p>"}`;
+$("#q").oninput=x=>{Q=x.target.value.toLowerCase();const p=x.target.selectionStart;draw();$("#q").focus();$("#q").setSelectionRange(p,p)};
+document.querySelectorAll("[data-f]").forEach(b=>b.onclick=()=>{F=b.dataset.f;draw()});
+document.querySelectorAll("[data-r]").forEach(s=>s.onchange=async()=>{const o=O.find(x=>x.row==s.dataset.r);o.status=s.value;draw();
+await fetch(API,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain"},body:JSON.stringify({action:"status",token:TOK,row:o.row,id:o.id,status:o.status})})})}
+$("#rf").onclick=()=>API&&TOK?load():login();
+$("#lo").onclick=()=>{localStorage.removeItem("ae_tok");TOK="";login()};
+API&&TOK?load():login();
+</script></body></html>
