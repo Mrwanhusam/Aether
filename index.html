@@ -166,7 +166,7 @@ $("#items").innerHTML=cart.length?cart.map((i,x)=>{const p=P.find(p=>p.id==i.id)
 const z=zone(),sh=cart.length?z.c:0;$("#sum").innerHTML=cart.length?`<div class="li"><span>Subtotal</span><span>${price(total())}</span></div><div class="li"><span>Shipping</span><span>${price(sh)}</span></div><div class="li"><b>Total</b><b>${price(total()+sh)}</b></div>`:"";
 $("#oo").value=cart.map(i=>`${P.find(p=>p.id==i.id).n} / ${i.s} x${i.q}`).join("; ");$("#ot").value=`${total()+sh} EGP`;$("#os").value=total();$("#oh").value=sh;$("#ol").value=cart.map(i=>{const p=P.find(p=>p.id==i.id);return `${p.n}|${i.s}|${i.q}|${p.u}`}).join(";");if(!$("#oi").value)$("#oi").value="AE-"+new Date().toISOString().slice(2,10).replace(/-/g,"")+"-"+Math.floor(1000+Math.random()*9000)}
 function pays(){$("#pm").innerHTML=Object.entries(PAY).filter(()=>1).map(([k,v])=>`<option value="${k}">${v.n}</option>`).join("");pm()}
-function pm(){const v=PAY[$("#pm").value];$("#pi").classList.toggle("hide",!v.t);$("#pt").innerHTML=v.t}
+function pm(){const v=PAY[$("#pm").value];$("#pi").classList.toggle("hide",!v.t);$("#pt").innerHTML=v.t;$("#pr").required=$("#ps").required=!!v.t}
 function show(s){$(s).classList.add("on");$("#mask").classList.add("on")}
 function hide(){document.querySelectorAll(".panel,.mask").forEach(e=>e.classList.remove("on"))}
 $("#zn").innerHTML=Object.keys(ZONES).map(z=>`<option>${z}</option>`).join("");
