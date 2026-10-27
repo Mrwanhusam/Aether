@@ -4,10 +4,11 @@
    once = each customer (same phone or email) can use it one time only, unless you allow it again from the dashboard
    min = minimum order in EGP (optional) | exp = last valid day, YYYY-MM-DD (optional) */
 const CODES = {
-  "CODE10": { pct: 10 },
-  "CODE20": { pct: 20, once: true },
-  "CODE30": { pct: 30, once: true },
-  "CODE50": { pct: 50, once: true }
+  "SYSTEM10": { pct: 10, min: 800 },
+  "FAM20": { pct: 20, once: true, min: 1200 },
+   "FAMI20": { pct: 20, once: FALSE },
+  "FAMIL30": { pct: 30, once: FALSE },
+  "FAMILY50": { pct: 50, once: FALSE }
 };
 
 function calcDiscount(c, sub, sh, now) {
