@@ -1,12 +1,8 @@
-/* AETHER discount codes.
-   Add this line before </body> in index.html (after the main script):
-   <script src="promo.js"></script>
-*/
+/* AETHER discount codes */
 
 (function () {
   let cur = null; // the applied code: { code, def }
 
-  // دوال الحساب المحلية لتحديث السلة فورياً بدون كشف قائمة الأكواد
   function calcDiscount(def, sub, sh) {
     if (!def) return 0;
     let d = 0;
@@ -53,4 +49,49 @@
     }
     if (cart.length) {
       $("#sum").innerHTML =
-        `<div class="li"><span>Subtotal</span><span>${price(sub)}</span></div>
+        `<div class="li"><span>Subtotal</span><span>${price(sub)}</span></div>` +
+        `<div class="li"><span>Shipping</span><span>${price(sh)}</span></div>` +
+        (d ? `<div class="li"><span>Code ${cur.code}</span><span>-${price(d)}</span></div>` : "") +
+        `<div class="li"><b>Total</b><b>${price(sub + sh - d)}</b></div>`;
+      $("#ot").value = `${sub + sh - d} EGP`;
+      if (d) $("#oo").value += ` | Code ${cur.code} (-${d} EGP)`;
+    }
+    $("#oc").value = d ? cur.code : "";
+    $("#od").value = d;
+  };
+
+  $("#pa").onclick = async () => {
+    const code = $("#pc").value.trim().toUpperCase();
+    if (!code) return;
+    if (!cart.length) { $("#pn").textContent = "Add something to your cart first."; return; }
+    
+    $("#pa").disabled = true;
+    $("#pn").textContent = "Checking code...";
+
+    try {
+      const sub = total(), sh = cart.length ? zone().c : 0;
+      const res = await f0("/api/promo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code, subtotal: sub, shipping: sh })
+      });
+      const data = await res.json();
+      
+      if (!res.ok || data.problem) {
+        cur = null;
+        $("#pn").textContent = data.problem || "Invalid discount code.";
+      } else {
+        cur = { code: data.code, def: data.def };
+        $("#pn").textContent = "Code applied.";
+      }
+    } catch (e) {
+      cur = null;
+      $("#pn").textContent = "Error validating code.";
+    } finally {
+      $("#pa").disabled = false;
+      upd();
+    }
+  };
+
+  upd();
+})();
