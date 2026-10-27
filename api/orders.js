@@ -1,3 +1,5 @@
+// Private bridge between the dashboard and Google Sheets.
+// The long Apps Script link stays hidden in the SHEET_URL environment variable.
 module.exports = async (req, res) => {
   const base = process.env.SHEET_URL;
   if (!base) return res.status(500).json({ error: "SHEET_URL is not set" });
@@ -7,7 +9,7 @@ module.exports = async (req, res) => {
       r = await fetch(base + "?token=" + encodeURIComponent(req.query.token || ""));
     } else if (req.method === "POST") {
       const b = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
-      if (!b || b.action !== "status") return res.status(400).json({ error: "bad request" });
+      if (!b || !["status", "allow"].includes(b.action)) return res.status(400).json({ error: "bad request" });
       r = await fetch(base, { method: "POST", headers: { "Content-Type": "text/plain" }, body: JSON.stringify(b) });
     } else {
       return res.status(405).end();

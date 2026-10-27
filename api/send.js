@@ -10,6 +10,28 @@ module.exports = async (req, res) => {
     .filter(([k]) => !["bot", "form-name", "file"].includes(k))
     .map(([k, v]) => `<p><b>${esc(k)}:</b> ${esc(v)}</p>`).join("");
 
+  // Discount codes: validate, and enforce one-time codes (checked against the sheet)
+  let codeNote = "";
+  if (type === "New order" && d.promo) {
+    const { CODES } = require("../codes.js");
+    const code = String(d.promo).toUpperCase(), def = CODES[code];
+    if (!def) return res.status(400).json({ ok: false, error: "bad_code" });
+    if (def.once) {
+      if (!process.env.SHEET_URL || !process.env.SHEET_TOKEN) {
+        codeNote = "Code check skipped: SHEET_TOKEN is not set in Vercel";
+      } else {
+        try {
+          const u = process.env.SHEET_URL + "?token=" + encodeURIComponent(process.env.SHEET_TOKEN) +
+            "&action=codeused&code=" + encodeURIComponent(code) +
+            "&phone=" + encodeURIComponent(d.phone || "") + "&email=" + encodeURIComponent(d.email || "");
+          const j = await (await fetch(u)).json();
+          if (j.used) return res.status(409).json({ ok: false, error: "code_used" });
+          if (j.error) codeNote = "Code check failed: " + j.error;
+        } catch (e) { codeNote = "Code check failed: " + e.message; }
+      }
+    }
+  }
+
   // Save to Google Sheets and report the result inside the email (for debugging)
   let sheetNote = "Sheet: SHEET_URL is not set in Vercel";
   if (process.env.SHEET_URL) {
@@ -32,7 +54,7 @@ module.exports = async (req, res) => {
     to: [process.env.OWNER_EMAIL],
     reply_to: d.email,
     subject: `AETHER - ${type} from ${d.name || ""}`.slice(0, 150),
-    html: rows + `<hr><p><i>${esc(sheetNote)}</i></p>`
+    html: rows + `<hr><p><i>${esc(sheetNote)}</i></p>` + (codeNote ? `<p><i>${esc(codeNote)}</i></p>` : "")
   };
   if (d.file && d.file.data) body.attachments = [{ filename: d.file.name, content: d.file.data }];
   const r = await fetch("https://api.resend.com/emails", {
