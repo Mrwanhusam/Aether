@@ -32,7 +32,7 @@ module.exports = async (req, res) => {
       ? calcDiscount(def, subtotal, shipping, now) 
       : 0;
 
-    // يعيد فقط بيانات الكود المُدخل بنجاح ولا يكشف باقي الأكواد
+    // بنرجع للمتصفح بيانات الكود ده بس علشان باقي الأكواد تفضل سرية في السيرفر
     return res.status(200).json({
       ok: true,
       code,
