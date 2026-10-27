@@ -1,0 +1,34 @@
+/* AETHER mobile layer. Add before </head> in index.html: <link rel="stylesheet" href="mobile.css"> */
+html,body{overflow-x:hidden;-webkit-text-size-adjust:100%}
+*{-webkit-tap-highlight-color:transparent}
+input,select,textarea{font-size:16px}            /* stops iPhone zoom when typing */
+button,.btn{min-height:44px}
+.x{width:44px;height:44px}
+@media(max-width:760px){
+  header{flex-wrap:wrap;gap:8px 12px;padding:10px 4vw}
+  nav{display:flex!important;order:3;width:100%;margin:0;border-top:1px solid var(--ink);padding-top:6px}
+  nav a{flex:1;text-align:center;padding:8px 0;font-size:14px}
+  .hero{padding:8vw 4vw 7vw}
+  .hero h1{font-size:21vw}
+  .hero .sl{font-size:34px}
+  .hero p{font-size:16px}
+  .btn{display:block;width:100%;text-align:center}
+  section{padding:11vw 4vw}
+  h2{font-size:34px}
+  .grid{grid-template-columns:1fr 1fr}
+  .card{padding:8px}.card b{font-size:14px}.card span{font-size:12px}
+  .filters{flex-wrap:nowrap;overflow-x:auto;margin-right:-4vw;padding:0 4vw 6px 0}
+  .filters button{white-space:nowrap;min-height:40px}
+  #cart{width:100%;border-left:0;padding:18px 4vw calc(24px + env(safe-area-inset-bottom))}
+  #of .row2{grid-template-columns:1fr}
+  #modal{inset:0;border:0;padding:14px 4vw calc(96px + env(safe-area-inset-bottom))}
+  .gallery{margin:0 -4vw;padding:0 4vw 8px}
+  .gallery img{width:88%}
+  .sizes button{min-width:52px;min-height:48px;font-size:16px}
+  #modal table{display:block;overflow-x:auto;white-space:nowrap;font-size:13px}
+  #add{position:fixed;left:0;right:0;bottom:0;z-index:35;width:100%;padding:16px 16px calc(16px + env(safe-area-inset-bottom));border:0;border-top:1px solid var(--ink)}
+  .inc{gap:10vw}
+  footer{flex-direction:column}
+  #wa{right:12px;bottom:calc(12px + env(safe-area-inset-bottom));padding:10px 14px}
+  #toast{bottom:84px;max-width:90vw;text-align:center}
+}
