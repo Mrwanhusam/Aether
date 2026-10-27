@@ -2,7 +2,7 @@
 <title>AETHER Orders</title>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#223653;--ink:#FFFFFF;--g:#FFFFFF;--w:#223653}
+:root{--bg:#f4f4f2;--ink:#000;--g:#6b6b6b;--w:#fff}
 *{box-sizing:border-box;margin:0}
 body{font:400 14px/1.5 Archivo,Arial,sans-serif;background:var(--bg);color:var(--ink)}
 button,input,select{font:inherit;color:inherit}button{cursor:pointer}
@@ -47,11 +47,16 @@ $("#m").innerHTML=`<div class="stats"><div class="st"><span>New</span><b>${c("Ne
 <div class="bar">${["All",...ST].map(s=>`<button data-f="${s}" class="${s==F?"on":""}">${s}</button>`).join("")}<input id="q" placeholder="Search name, order ID, phone, city" value="${e(Q)}"></div>
 ${L.map(o=>`<div class="ord"><div><b>${e(o.name)}</b><small>${e(o.id||"No ID")}</small><small>${new Date(o.date).toLocaleString("en-GB",{timeZone:"Africa/Cairo",dateStyle:"medium",timeStyle:"short"})}</small></div>
 <div>${e(o.items)}<small>${e(o.city)} · ${e(o.address)}</small><small>${e(PAY[o.pay]||o.pay)}${o.ref?" · Ref "+e(o.ref):""} · ${e(o.phone)}</small></div>
-<div><div class="tot">${e(o.total)}</div><select data-r="${o.row}">${ST.map(s=>`<option ${s==o.status?"selected":""}>${s}</option>`).join("")}</select><div class="acts">${o.receipt?`<a class="btn o" target="_blank" href="${e(o.receipt)}">Receipt</a>`:""}<a class="btn o" target="_blank" href="${wa(o.phone)}">WhatsApp</a></div></div></div>`).join("")||"<p>No orders here.</p>"}`;
+<div><div class="tot">${e(o.total)}</div><select data-r="${o.row}">${ST.map(s=>`<option ${s==o.status?"selected":""}>${s}</option>`).join("")}</select><div class="acts">${o.receipt?`<a class="btn o" target="_blank" href="${e(o.receipt)}">Receipt</a>`:""}<a class="btn o" target="_blank" href="${wa(o.phone)}">WhatsApp</a>${/Code \S+ \(/.test(o.items)?`<button class="btn o" data-al="${o.row}" style="flex:1;font-size:13px;padding:6px 10px">Allow code again</button>`:""}</div></div></div>`).join("")||"<p>No orders here.</p>"}`;
 $("#q").oninput=x=>{Q=x.target.value.toLowerCase();const p=x.target.selectionStart;draw();$("#q").focus();$("#q").setSelectionRange(p,p)};
 document.querySelectorAll("[data-f]").forEach(b=>b.onclick=()=>{F=b.dataset.f;draw()});
 document.querySelectorAll("[data-r]").forEach(s=>s.onchange=async()=>{const o=O.find(x=>x.row==s.dataset.r);o.status=s.value;draw();
 await fetch("/api/orders",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"status",token:TOK,row:o.row,id:o.id,status:o.status})})})}
+document.addEventListener("click",async ev=>{const b=ev.target.closest("[data-al]");if(!b)return;
+const o=O.find(x=>x.row==b.dataset.al),m=String(o.items).match(/Code (\S+) \(/);if(!m)return;
+if(!confirm("Let "+o.name+" use "+m[1]+" one more time?"))return;
+const r=await fetch("/api/orders",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"allow",token:TOK,code:m[1],phone:o.phone,email:o.email})});
+alert(r.ok?"Done. This customer can use "+m[1]+" once more.":"Could not save. Try again.")});
 $("#rf").onclick=()=>TOK?load():login();
 $("#lo").onclick=()=>{localStorage.removeItem("ae_tok");TOK="";login()};
 TOK?load():login();
