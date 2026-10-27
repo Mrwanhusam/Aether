@@ -1,97 +1,62 @@
-/* AETHER discount codes */
+// api/promo.js
 
-(function () {
-  let cur = null; // the applied code: { code, def }
+// 1. قائمة الأكواد السرية (مستحيل تظهر للمتصفح نهائياً)
+const CODES = {
+  "SYSTEM10": { pct: 10, min: 800 },
+  "FAM20": { pct: 20, once: true, min: 1200 },
+   "FAMI20": { pct: 20, once: FALSE },
+  "FAMIL30": { pct: 30, once: FALSE },
+  "FAMILY50": { pct: 50, once: FALSE }
+};
+// 2. دوال الحساب والتأكد من شروط الكود
+function calcDiscount(def, sub, sh) {
+  if (!def) return 0;
+  let d = 0;
+  if (def.pct) d += Math.round((sub * def.pct) / 100);
+  if (def.ship) d += sh;
+  return Math.min(d, sub + sh);
+}
 
-  function calcDiscount(def, sub, sh) {
-    if (!def) return 0;
-    let d = 0;
-    if (def.pct) d += Math.round((sub * def.pct) / 100);
-    if (def.ship) d += sh;
-    return Math.min(d, sub + sh);
+function codeProblem(def, sub, now) {
+  if (!def) return "Invalid discount code.";
+  if (def.exp && now > new Date(def.exp + "T23:59:59")) return "This code has expired.";
+  if (def.min && sub < def.min) return `Minimum order is ${def.min} EGP for this code.`;
+  return "";
+}
+
+// 3. مسار السيرفر
+module.exports = async (req, res) => {
+  if (req.method !== "POST") {
+    return res.status(405).json({ problem: "Method not allowed" });
   }
 
-  function codeProblem(def, sub, now) {
-    if (!def) return "Invalid discount code.";
-    if (def.exp && now > new Date(def.exp + "T23:59:59")) return "This code has expired.";
-    if (def.min && sub < def.min) return `Minimum order is ${def.min} EGP for this code.`;
-    return "";
+  try {
+    const body = typeof req.body === "string" ? JSON.parse(req.body) : (req.body || {});
+    const code = String(body.code || "").trim().toUpperCase();
+    const subtotal = Number(body.subtotal) || 0;
+    const shipping = Number(body.shipping) || 0;
+
+    if (!code) {
+      return res.status(400).json({ problem: "Please enter a discount code." });
+    }
+
+    const def = CODES[code];
+    const now = new Date();
+    const problem = codeProblem(def, subtotal, now);
+
+    if (problem) {
+      return res.status(400).json({ problem });
+    }
+
+    const discount = calcDiscount(def, subtotal, shipping, now);
+
+    return res.status(200).json({
+      ok: true,
+      code,
+      discount,
+      def: { pct: def.pct, ship: def.ship, min: def.min, exp: def.exp }
+    });
+  } catch (err) {
+    return res.status(500).json({ problem: "Error calculating discount." });
   }
-
-  // When the server says a one-time code was already used, show a clear message.
-  let blocked = false;
-  const f0 = window.fetch;
-  window.fetch = async function (...a) {
-    const r = await f0.apply(this, a);
-    if (r.status === 409 && String(a[0]).indexOf("/api/send") > -1) blocked = true;
-    return r;
-  };
-
-  const t0 = window.toast;
-  window.toast = function (m) {
-    if (blocked) { blocked = false; m = "This code has already been used and can't be used again."; }
-    t0(m);
-  };
-
-  $("#of").insertAdjacentHTML("beforeend", '<input type="hidden" name="promo" id="oc"><input type="hidden" name="discount" id="od">');
-  $("#sum").insertAdjacentHTML("beforebegin", '<div id="pbox" style="margin:14px 0 6px"><div style="display:flex;gap:8px"><input id="pc" placeholder="Discount code" autocapitalize="characters" autocomplete="off" style="flex:1"><button class="btn o" id="pa" type="button" style="width:auto;display:inline-block;padding:10px 18px">Apply</button></div><p class="note" id="pn" aria-live="polite"></p></div>');
-
-  const base = upd;
-  window.upd = function () {
-    base();
-    if (!cart.length) { cur = null; $("#pc").value = ""; $("#pn").textContent = ""; }
-    const sub = total(), sh = cart.length ? zone().c : 0, now = new Date();
-    let d = 0;
-    if (cur) {
-      const pr = codeProblem(cur.def, sub, now);
-      if (pr) { $("#pn").textContent = pr; cur = null; }
-      else d = calcDiscount(cur.def, sub, sh, now);
-    }
-    if (cart.length) {
-      $("#sum").innerHTML =
-        `<div class="li"><span>Subtotal</span><span>${price(sub)}</span></div>` +
-        `<div class="li"><span>Shipping</span><span>${price(sh)}</span></div>` +
-        (d ? `<div class="li"><span>Code ${cur.code}</span><span>-${price(d)}</span></div>` : "") +
-        `<div class="li"><b>Total</b><b>${price(sub + sh - d)}</b></div>`;
-      $("#ot").value = `${sub + sh - d} EGP`;
-      if (d) $("#oo").value += ` | Code ${cur.code} (-${d} EGP)`;
-    }
-    $("#oc").value = d ? cur.code : "";
-    $("#od").value = d;
-  };
-
-  $("#pa").onclick = async () => {
-    const code = $("#pc").value.trim().toUpperCase();
-    if (!code) return;
-    if (!cart.length) { $("#pn").textContent = "Add something to your cart first."; return; }
-    
-    $("#pa").disabled = true;
-    $("#pn").textContent = "Checking code...";
-
-    try {
-      const sub = total(), sh = cart.length ? zone().c : 0;
-      const res = await f0("/api/promo", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code, subtotal: sub, shipping: sh })
-      });
-      const data = await res.json();
-      
-      if (!res.ok || data.problem) {
-        cur = null;
-        $("#pn").textContent = data.problem || "Invalid discount code.";
-      } else {
-        cur = { code: data.code, def: data.def };
-        $("#pn").textContent = "Code applied.";
-      }
-    } catch (e) {
-      cur = null;
-      $("#pn").textContent = "Error validating code.";
-    } finally {
-      $("#pa").disabled = false;
-      upd();
-    }
-  };
-
-  upd();
-})();
+};
