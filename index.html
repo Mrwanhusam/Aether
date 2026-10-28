@@ -66,7 +66,42 @@ footer{padding:4vw;display:flex;justify-content:space-between;flex-wrap:wrap;gap
 .gallery::-webkit-scrollbar-thumb { background: var(--ink); }
 .gallery::-webkit-scrollbar-track { background: var(--g2); }
 
-@media(max-width:760px){.hero .row,.inc,.pd{grid-template-columns:1fr}nav{display:none}#modal{inset:0}}
+/* زرار السلة العائم المخصص للموبايل */
+#floating-cart-btn { display: none; }
+
+@media(max-width:760px){
+  .hero .row,.inc,.pd{grid-template-columns:1fr}
+  nav,#cb,#wa{display:none!important}
+  #modal{inset:0}
+  #floating-cart-btn{
+    position:fixed;
+    right:18px;
+    bottom:18px;
+    z-index:25;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    background:var(--ink);
+    color:var(--w);
+    border:1px solid var(--ink);
+    padding:12px 18px;
+    font-weight:700;
+    font-size:13px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    box-shadow:0 6px 20px rgba(0,0,0,.25);
+  }
+  #floating-cart-btn:active{transform:scale(0.97)}
+  #floating-cart-btn .badge{
+    background:var(--w);
+    color:var(--ink);
+    padding:2px 7px;
+    font-size:12px;
+    font-weight:800;
+    min-width:18px;
+    text-align:center;
+  }
+}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 </style><link rel="stylesheet" href="mobile.css"></head><body>
 <header><a class="logo" href="#">AETHER</a>
@@ -97,6 +132,9 @@ footer{padding:4vw;display:flex;justify-content:space-between;flex-wrap:wrap;gap
 
 <footer><b>AETHER</b><span>Cairo, Egypt. Shipping across Egypt.</span><span><a href="shipping.html">Shipping &amp; returns</a> · <a href="faq.html">FAQ</a> · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a></span></footer>
 <a id="wa" href="https://wa.me/201158491356" target="_blank" rel="noopener">WhatsApp</a>
+
+<!-- زرار السلة العائم للموبايل -->
+<button type="button" id="floating-cart-btn" aria-label="Open Cart">CART <span class="badge" id="float-cart-count">0</span></button>
 
 <div class="mask" id="mask"></div>
 <aside class="panel" id="cart" aria-label="Cart"><button class="x" data-close>×</button><h2 style="font-size:36px">Cart</h2><div id="items"></div><div id="sum"></div>
@@ -160,7 +198,8 @@ if(e.target.id=="add"){const k=cart.find(i=>i.id==id&&i.s==sz);k?k.q++:cart.push
 $("#mw").oninput=e=>{$("#mr").textContent=e.target.value?"We suggest size "+rec(+e.target.value,0):""}}
 const total=()=>cart.reduce((a,i)=>a+P.find(p=>p.id==i.id).u*i.q,0);
 const zone=()=>ZONES[$("#zn").value]||Object.values(ZONES)[0];
-function upd(){$("#cb").textContent=`Cart (${cart.reduce((a,i)=>a+i.q,0)})`;
+function upd(){const q=cart.reduce((a,i)=>a+i.q,0);$("#cb").textContent=`Cart (${q})`;
+const fcb=$("#float-cart-count");if(fcb)fcb.textContent=q;
 $("#items").innerHTML=cart.length?cart.map((i,x)=>{const p=P.find(p=>p.id==i.id);return`<div class="li"><span>${p.n} · ${i.s}</span><span><button data-m="${x}">−</button> ${i.q} <button data-p="${x}">+</button> ${price(p.u*i.q)}</span></div>`}).join(""):"<p>Your cart is empty.</p>";
 const z=zone(),sh=cart.length?z.c:0;$("#sum").innerHTML=cart.length?`<div class="li"><span>Subtotal</span><span>${price(total())}</span></div><div class="li"><span>Shipping</span><span>${price(sh)}</span></div><div class="li"><b>Total</b><b>${price(total()+sh)}</b></div>`:"";
 $("#oo").value=cart.map(i=>`${P.find(p=>p.id==i.id).n} / ${i.s} x${i.q}`).join("; ");$("#ot").value=`${total()+sh} EGP`;$("#os").value=total();$("#oh").value=sh;$("#ol").value=cart.map(i=>{const p=P.find(p=>p.id==i.id);return `${p.n}|${i.s}|${i.q}|${p.u}`}).join(";");if(!$("#oi").value)$("#oi").value="AE-"+new Date().toISOString().slice(2,10).replace(/-/g,"")+"-"+Math.floor(1000+Math.random()*9000)}
@@ -178,6 +217,7 @@ const d=t.closest(".card");if(d)open(d.dataset.id);
 if(t.dataset.m){const i=cart[t.dataset.m];if(--i.q<1)cart.splice(t.dataset.m,1);upd()}
 if(t.dataset.p){cart[t.dataset.p].q++;upd()}});
 $("#cb").onclick=()=>{upd();show("#cart")};
+const fb=$("#floating-cart-btn");if(fb)fb.onclick=()=>{upd();show("#cart")};
 $("#co").onclick=()=>{if(!cart.length)return toast("Your cart is empty");$("#of").classList.remove("hide");$("#co").classList.add("hide");pays()};
 $("#zn").onchange=()=>{pays();upd()};$("#pm").onchange=pm;
 $("#fgo").onclick=()=>{const w=+$("#fw").value,h=+$("#fh").value;$("#fres").textContent=w?`Your size: ${rec(w,h)}. Fit: oversized as designed. Go one size down for a closer fit.`:"Enter your weight."};
@@ -196,4 +236,7 @@ $("#modal").innerHTML=`<button class="x" data-close>×</button><h2>Order receive
 show("#modal");window.open(url,"_blank")});
 send($("#tf"),()=>toast("Ticket sent. We will reply by email."));
 grid();upd();
-</script><script src="promo.js"></script></body></html>
+</script>
+<script src="promo.js"></script>
+</body>
+</html>
