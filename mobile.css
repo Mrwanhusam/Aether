@@ -1,13 +1,52 @@
-/* AETHER mobile layer. Add before </head> in index.html: <link rel="stylesheet" href="mobile.css"> */
+/* AETHER mobile layer */
 html,body{overflow-x:hidden;-webkit-text-size-adjust:100%}
 *{-webkit-tap-highlight-color:transparent}
 input,select,textarea{font-size:16px}            /* stops iPhone zoom when typing */
 button,.btn{min-height:44px}
 .x{width:44px;height:44px}
+
+/* زرار السلة العائم مخفي تماماً على أجهزة الكمبيوتر */
+#floating-cart-btn { display: none; }
+
 @media(max-width:760px){
   header{flex-wrap:wrap;gap:8px 12px;padding:10px 4vw}
   nav{display:flex!important;order:3;width:100%;margin:0;border-top:1px solid var(--ink);padding-top:6px}
   nav a{flex:1;text-align:center;padding:8px 0;font-size:14px}
+  
+  /* إخفاء زرار الكارت القديم من الهيدر وإخفاء الواتساب في الموبايل فقط */
+  #cb{display:none!important}
+  #wa{display:none!important}
+
+  /* زرار السلة العائم للموبايل بديل الواتساب */
+  #floating-cart-btn{
+    display:flex!important;
+    position:fixed;
+    right:16px;
+    bottom:calc(16px + env(safe-area-inset-bottom));
+    z-index:25;
+    align-items:center;
+    gap:8px;
+    background:var(--ink);
+    color:var(--w);
+    border:1px solid var(--ink);
+    padding:12px 18px;
+    font-weight:700;
+    font-size:13px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    box-shadow:0 6px 20px rgba(0,0,0,.25);
+  }
+  #floating-cart-btn:active{transform:scale(0.97)}
+  #floating-cart-btn .badge{
+    background:var(--w);
+    color:var(--ink);
+    padding:2px 7px;
+    font-size:12px;
+    font-weight:800;
+    min-width:18px;
+    text-align:center;
+  }
+
   .hero{padding:8vw 4vw 7vw}
   .hero h1{font-size:21vw}
   .hero .sl{font-size:34px}
@@ -29,6 +68,5 @@ button,.btn{min-height:44px}
   #add{position:fixed;left:0;right:0;bottom:0;z-index:35;width:100%;padding:16px 16px calc(16px + env(safe-area-inset-bottom));border:0;border-top:1px solid var(--ink)}
   .inc{gap:10vw}
   footer{flex-direction:column}
-  #wa{right:12px;bottom:calc(12px + env(safe-area-inset-bottom));padding:10px 14px}
   #toast{bottom:84px;max-width:90vw;text-align:center}
 }
