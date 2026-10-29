@@ -60,4 +60,11 @@ alert(r.ok?"Done. This customer can use "+m[1]+" once more.":"Could not save. Tr
 $("#rf").onclick=()=>TOK?load():login();
 $("#lo").onclick=()=>{localStorage.removeItem("ae_tok");TOK="";login()};
 TOK?load():login();
-</script></body></html>
+</script>
+
+<!-- Vercel Web Analytics -->
+<script type="module">
+import { inject } from 'https://cdn.jsdelivr.net/npm/@vercel/analytics@1/+esm';
+inject();
+</script>
+</body></html>
