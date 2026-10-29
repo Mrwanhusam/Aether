@@ -53,4 +53,11 @@ document.getElementById("r").innerHTML=`
 <div class="tot"><div><span>Subtotal</span><span>${m(g("sub")||0)}</span></div><div><span>Shipping</span><span>${m(g("ship")||0)}</span></div><div class="g"><span>Total</span><span>${e(g("total"))}</span></div></div>
 <div class="pay"><h4>Payment</h4>${e(pm)}${g("ref")?" · Ref "+e(g("ref")):""}<br>${cod?"Amount due on delivery: <b>"+e(g("total"))+"</b>":"Status: <b>Paid</b>"}</div>
 <div class="ft">Thank you for choosing AETHER.<br>${e(NOTE)}<br>WhatsApp ${e(PHONE)}</div>`}
-</script></body></html>
+</script>
+
+<!-- Vercel Web Analytics -->
+<script type="module">
+import { inject } from 'https://cdn.jsdelivr.net/npm/@vercel/analytics@1/+esm';
+inject();
+</script>
+</body></html>
