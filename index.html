@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>AETHER — Silent Chaos</title>
-<meta name="description" content="AETHER: elevated, Architectural streetwear from Egypt. Built heavy. Cut precise. ">
-<meta property="og:title" content="AETHER — Silent Chaos"><meta property="og:type" content="website">
+<title>EATHER — Silent Chaos</title>
+<meta name="description" content="EATHER: elevated, Architectural streetwear from Egypt. Built heavy. Cut precise. ">
+<meta property="og:title" content="EATHER — Silent Chaos"><meta property="og:type" content="website">
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#ffffff;--ink:#000000;--g1:#000000;--g2:#d9d9d6;--w:#ffffff}
@@ -104,11 +104,11 @@ footer{padding:4vw;display:flex;justify-content:space-between;flex-wrap:wrap;gap
 }
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 </style><link rel="stylesheet" href="mobile.css"></head><body>
-<header><a class="logo" href="#">AETHER</a>
+<header><a class="logo" href="#">EATHER</a>
 <nav><a href="#shop">Shop</a><a href="#fit">Inclusive fit</a><a href="#support">Support</a></nav>
 <button class="hb" id="cb">Cart (0)</button></header>
 
-<div class="hero"><h1>AETHER</h1>
+<div class="hero"><h1>EATHER</h1>
 <div class="row"><div class="sl">Silent Chaos.</div>
 <div><p>Architectural streetwear from Egypt, Built heavy, Cut precise.</p><br><a class="btn" href="#shop">Shop the collection</a></div></div></div>
 
@@ -130,7 +130,7 @@ footer{padding:4vw;display:flex;justify-content:space-between;flex-wrap:wrap;gap
 <label for="tm">Message</label><textarea id="tm" name="message" rows="4" required></textarea><br><br>
 <button class="btn" type="submit">Send ticket</button></form></div></section>
 
-<footer><b>AETHER</b><span>Cairo, Egypt. Shipping across Egypt.</span><span><a href="shipping.html">Shipping &amp; returns</a> · <a href="faq.html">FAQ</a> · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a></span></footer>
+<footer><b>EATHER</b><span>Cairo, Egypt. Shipping across Egypt.</span><span><a href="shipping.html">Shipping &amp; returns</a> · <a href="faq.html">FAQ</a> · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a></span></footer>
 <a id="wa" href="https://wa.me/201158491356" target="_blank" rel="noopener">WhatsApp</a>
 
 <!-- زرار السلة العائم للموبايل -->
@@ -202,7 +202,7 @@ function upd(){const q=cart.reduce((a,i)=>a+i.q,0);$("#cb").textContent=`Cart ($
 const fcb=$("#float-cart-count");if(fcb)fcb.textContent=q;
 $("#items").innerHTML=cart.length?cart.map((i,x)=>{const p=P.find(p=>p.id==i.id);return`<div class="li"><span>${p.n} · ${i.s}</span><span><button data-m="${x}">−</button> ${i.q} <button data-p="${x}">+</button> ${price(p.u*i.q)}</span></div>`}).join(""):"<p>Your cart is empty.</p>";
 const z=zone(),sh=cart.length?z.c:0;$("#sum").innerHTML=cart.length?`<div class="li"><span>Subtotal</span><span>${price(total())}</span></div><div class="li"><span>Shipping</span><span>${price(sh)}</span></div><div class="li"><b>Total</b><b>${price(total()+sh)}</b></div>`:"";
-$("#oo").value=cart.map(i=>`${P.find(p=>p.id==i.id).n} / ${i.s} x${i.q}`).join("; ");$("#ot").value=`${total()+sh} EGP`;$("#os").value=total();$("#oh").value=sh;$("#ol").value=cart.map(i=>{const p=P.find(p=>p.id==i.id);return `${p.n}|${i.s}|${i.q}|${p.u}`}).join(";");if(!$("#oi").value)$("#oi").value="AE-"+new Date().toISOString().slice(2,10).replace(/-/g,"")+"-"+Math.floor(1000+Math.random()*9000)}
+$("#oo").value=cart.map(i=>`${P.find(p=>p.id==i.id).n} / ${i.s} x${i.q}`).join("; ");$("#ot").value=`${total()+sh} EGP`;$("#os").value=total();$("#oh").value=sh;$("#ol").value=cart.map(i=>{const p=P.find(p=>p.id==i.id);return `${p.n}|${i.s}|${i.q}|${p.u}`}).join(";");if(!$("#oi").value)$("#oi").value="EA-"+new Date().toISOString().slice(2,10).replace(/-/g,"")+"-"+Math.floor(1000+Math.random()*9000)}
 function pays(){$("#pm").innerHTML=Object.entries(PAY).filter(()=>1).map(([k,v])=>`<option value="${k}">${v.n}</option>`).join("");pm()}
 function pm(){const v=PAY[$("#pm").value];$("#pi").classList.toggle("hide",!v.t);$("#pt").innerHTML=v.t;$("#pr").required=$("#ps").required=!!v.t}
 function show(s){$(s).classList.add("on");$("#mask").classList.add("on")}
@@ -229,7 +229,7 @@ const r=await fetch("/api/send",{method:"POST",headers:{"Content-Type":"applicat
 if(!r.ok)throw 0;f.reset();ok(d)}catch(x){toast(x=="big"?"Screenshot too large (max 3 MB).":"Could not send. Please try again or use WhatsApp.")}b.disabled=false});
 send($("#of"),d=>{const m=PAY[d.payment]||{n:""},ref=d.reference?" (ref: "+d.reference+")":"";
 const L={cod:`I chose Cash on Delivery. I will pay ${d.total} when I receive the order.`,insta:`I paid ${d.total} via InstaPay${ref}. I attached the transfer screenshot to my order.`,wallet:`I paid ${d.total} via e-wallet${ref}. I attached the transfer screenshot to my order.`};
-const msg=`Hello AETHER, I just placed an order.\n\nOrder: ${d.order_id}\nName: ${d.name}\nPhone: ${d.phone}\nCity: ${d.city}\nItems: ${d.order}\nPayment: ${m.n}\n${L[d.payment]||""}\n\nPlease confirm my order. Thank you!`;
+const msg=`Hello EATHER, I just placed an order.\n\nOrder: ${d.order_id}\nName: ${d.name}\nPhone: ${d.phone}\nCity: ${d.city}\nItems: ${d.order}\nPayment: ${m.n}\n${L[d.payment]||""}\n\nPlease confirm my order. Thank you!`;
 const url="https://wa.me/"+WA+"?text="+encodeURIComponent(msg);
 cart.length=0;$("#oi").value="";upd();hide();$("#of").classList.add("hide");$("#co").classList.remove("hide");
 $("#modal").innerHTML=`<button class="x" data-close>×</button><h2>Order received</h2><p>Last step: send us the confirmation message on WhatsApp so we can confirm your order.</p><br><a class="btn" href="${url}" target="_blank" rel="noopener">Confirm on WhatsApp</a>`;
