@@ -50,10 +50,10 @@ module.exports = async (req, res) => {
   }
 
   const body = {
-    from: "AETHER <onboarding@resend.dev>",
+    from: "EATHER <onboarding@resend.dev>",
     to: [process.env.OWNER_EMAIL],
     reply_to: d.email,
-    subject: `AETHER - ${type} from ${d.name || ""}`.slice(0, 150),
+    subject: `EATHER - ${type} from ${d.name || ""}`.slice(0, 150),
     html: rows + `<hr><p><i>${esc(sheetNote)}</i></p>` + (codeNote ? `<p><i>${esc(codeNote)}</i></p>` : "")
   };
   if (d.file && d.file.data) body.attachments = [{ filename: d.file.name, content: d.file.data }];

@@ -1,5 +1,5 @@
 /* ============================================================
-   AETHER Product Catalog
+   EATHER Product Catalog
    - Edit names, prices, categories, or fabric specs directly here.
    - For `img`, provide the path to your photo or GIF in `images/`
    ============================================================ */

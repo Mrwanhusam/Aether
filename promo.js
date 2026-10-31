@@ -1,4 +1,4 @@
-/* AETHER discount codes */
+/* EATHER discount codes */
 
 (function () {
   // منع إنشاء خانة الخصم أكثر من مرة

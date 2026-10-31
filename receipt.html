@@ -1,5 +1,5 @@
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>AETHER Receipt</title>
+<title>EATHER Receipt</title>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&display=swap" rel="stylesheet">
 <style>
 :root{--ink:#000;--g:#666;--l:#d9d9d6;--bg:#f4f4f2}
@@ -38,12 +38,12 @@ const q=new URLSearchParams(location.search),g=k=>q.get(k)||"";
 const e=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const m=n=>Number(n).toLocaleString("en")+" EGP";
 const PAY={cod:"Cash on delivery",insta:"InstaPay",wallet:"E-wallet"};
-const logo=LOGO?`<img src="${e(LOGO)}" alt="AETHER">`:"AETHER";
+const logo=LOGO?`<img src="${e(LOGO)}" alt="EATHER">`:"EATHER";
 if(!g("id")){document.getElementById("r").innerHTML="<p>Open this page from the “Print receipt” link in your orders sheet.</p>"}
 else{
 const rows=g("lines").split(";").filter(Boolean).map(l=>{const[a,s,n,p]=l.split("|");return`<tr><td>${e(a)}</td><td>${e(s)}</td><td class="n">${e(n)}</td><td class="n">${m(p)}</td><td class="n">${m(p*n)}</td></tr>`}).join("");
 const cod=g("pay")=="cod",pm=PAY[g("pay")]||g("pay");
-document.title="AETHER Receipt "+g("id");
+document.title="EATHER Receipt "+g("id");
 document.getElementById("r").innerHTML=`
 <div class="top"><div><div class="logo">${logo}</div><div class="sl">Silent Chaos.</div></div>
 <div class="meta"><b>Receipt</b>${e(g("id"))}<br>${e(g("date")||new Date().toLocaleDateString("en-GB"))}</div></div>
@@ -52,5 +52,5 @@ document.getElementById("r").innerHTML=`
 <table><tr><th>Item</th><th>Size</th><th class="n">Qty</th><th class="n">Price</th><th class="n">Total</th></tr>${rows}</table>
 <div class="tot"><div><span>Subtotal</span><span>${m(g("sub")||0)}</span></div><div><span>Shipping</span><span>${m(g("ship")||0)}</span></div><div class="g"><span>Total</span><span>${e(g("total"))}</span></div></div>
 <div class="pay"><h4>Payment</h4>${e(pm)}${g("ref")?" · Ref "+e(g("ref")):""}<br>${cod?"Amount due on delivery: <b>"+e(g("total"))+"</b>":"Status: <b>Paid</b>"}</div>
-<div class="ft">Thank you for choosing AETHER.<br>${e(NOTE)}<br>WhatsApp ${e(PHONE)}</div>`}
+<div class="ft">Thank you for choosing EATHER.<br>${e(NOTE)}<br>WhatsApp ${e(PHONE)}</div>`}
 </script></body></html>
